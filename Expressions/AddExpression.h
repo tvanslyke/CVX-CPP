@@ -8,7 +8,7 @@
 #ifndef EXPRESSIONS_ADDEXPRESSION_H_
 #define EXPRESSIONS_ADDEXPRESSION_H_
 
-#include "../ExpressionTraits.h"
+#include "Traits/ExpressionTraits.h"
 
 namespace cvx{
 template <class T, class Name, class U, ptrdiff_t M, ptrdiff_t N>
@@ -21,7 +21,7 @@ public:
 	using base_type = FunctionExpression<AddExpression<Left, Right>>;
 	using left_type = Left;
 	using right_type = Right;
-	using eval_result_type = OP_RESULT_TYPE(left_type, right_type, +);
+	using eval_result_type = CVX_OP_RESULT_TYPE(left_type, right_type, +);
 	AddExpression(const left_type & left, const right_type & right):
 		left_(left), right_(right)
 	{

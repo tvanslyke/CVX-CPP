@@ -10,12 +10,12 @@
 
 #include <type_traits>
 #include <utility>
-#include "ExpressionTraits.h"
-#include "Expressions/AddExpression.h"
-#include "Expressions/SubExpression.h"
-#include "Expressions/MulExpression.h"
-#include "Expressions/DivExpression.h"
-#include "Expressions/ConstantExpression.h"
+#include "AddExpression.h"
+#include "SubExpression.h"
+#include "MulExpression.h"
+#include "DivExpression.h"
+#include "ConstantExpression.h"
+#include "Traits/ExpressionTraits.h"
 namespace cvx{
 
 template <class Func>

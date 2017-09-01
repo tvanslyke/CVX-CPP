@@ -10,12 +10,13 @@
 
 #include <eigen3/Eigen/Dense>
 #include <cstddef>
-#include "ExpressionObjects.h"
+#include "Expressions/ExpressionObjects.h"
 #include "Utilities/Name.h"
 #include "Expressions/ConstantExpression.h"
 
 
 namespace cvx{
+
 template <class NameType, class T, ptrdiff_t M, ptrdiff_t N>
 class Variable: public FunctionExpression<Variable<NameType, T, M, N>>
 {

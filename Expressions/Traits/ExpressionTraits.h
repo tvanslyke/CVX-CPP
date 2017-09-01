@@ -9,95 +9,14 @@
 #define EXPRESSIONTRAITS_H_
 #include <type_traits>
 
+#include "IsFunction.h"
+#include "IsFunctionExpression.h"
+#include "IsVariable.h"
 
-#define OP_RESULT_TYPE(left_type, right_type, op) \
+#define CVX_OP_RESULT_TYPE(left_type, right_type, op) \
 	    std::remove_reference_t<std::remove_const_t<decltype(evaluate_expression(std::declval<left_type>()) op evaluate_expression(std::declval<right_type>()))>>
 
 namespace cvx{
-
-	namespace detail{
-		template <class T>
-		using remove_const_ref_t = std::remove_const_t<std::remove_reference_t<T>>;
-	} /* namespace detail */
-
-
-
-template <class Func>
-class FunctionExpression;
-
-template <class T, class Impl>
-class Function;
-
-template <class, class, ptrdiff_t = 1, ptrdiff_t = 1>
-class Variable;
-
-template <class T>
-class ConstantExpression;
-
-namespace detail{
-	struct FunctionBase{};
-} /* namespace detail */
-
-template <class T>
-struct IsFunction;
-template <class T>
-struct IsFunction
-{
-	static constexpr const bool value = std::is_base_of_v<detail::FunctionBase, T>;
-};
-template <class T>
-struct IsFunction<FunctionExpression<T>>
-{
-	static constexpr const bool value = std::is_base_of_v<detail::FunctionBase, T>;
-};
-template <class T, class Impl>
-struct IsFunction<Function<T, Impl>>
-{
-	static constexpr const bool value = true;
-};
-
-template <class T>
-constexpr bool is_function()
-{
-	return IsFunction<detail::remove_const_ref_t<T>>::value;
-};
-
-template <class T>
-struct IsFunctionExpression
-{
-	static constexpr const bool value = std::is_base_of_v<FunctionExpression<T>, T>;
-};
-template <class T>
-struct IsFunctionExpression<FunctionExpression<T>>
-{
-	static constexpr const bool value = true;
-};
-template <class T>
-constexpr bool is_function_expression()
-{
-	return IsFunctionExpression<detail::remove_const_ref_t<T>>::value;
-};
-
-template <class T>
-struct IsVariable
-{
-	static constexpr const bool value = false;
-};
-template <class T>
-struct IsVariable<FunctionExpression<T>>
-{
-	static constexpr const bool value = IsVariable<T>::value;
-};
-template <class Name, class T, ptrdiff_t M, ptrdiff_t N>
-struct IsVariable<Variable<Name, T, M, N>>
-{
-	static constexpr const bool value = true;
-};
-template <class T>
-constexpr bool is_variable()
-{
-	return IsVariable<detail::remove_const_ref_t<T>>::value;
-};
 
 template <class T, bool = is_function_expression<T>()>
 struct ExpressionTraits;
@@ -138,12 +57,12 @@ struct ExpressionTraits<T, false>
 	using derived_type = T;
 	using base_type = T;
 };
+
 template <class T>
 using expression_traits = ExpressionTraits<detail::remove_const_ref_t<T>>;
 
 template <class T>
 using derived_type_t = typename expression_traits<T>::derived_type;
-
 
 template <class T>
 const derived_type_t<T>& forward_as_derived(const T& expression)

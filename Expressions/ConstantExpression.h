@@ -8,8 +8,9 @@
 #ifndef EXPRESSIONS_CONSTANTEXPRESSION_H_
 #define EXPRESSIONS_CONSTANTEXPRESSION_H_
 
-#include "../ExpressionTraits.h"
 #include <utility>
+
+#include "Traits/ExpressionTraits.h"
 namespace cvx{
 
 template <class T>

@@ -8,12 +8,14 @@
 #include "Variable.h"
 #include <iostream>
 
-#include "ExpressionObjects.h"
+#include "Expressions/ExpressionObjects.h"
 #include "Functions/Functions.h"
-
+#include "Functions/FunctionTraits.h"
 using namespace cvx;
 int main()
 {
+
+	constexpr const std::tuple<int, double> t = {1, 2};
 	Variable<SYMB("y"), double> x(1.0);
 	Variable<SYMB("x"), double> y(2.0);
 	double expr = (x * y + (x + y) / (x - y)).eval();

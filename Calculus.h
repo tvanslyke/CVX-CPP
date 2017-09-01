@@ -8,8 +8,8 @@
 #ifndef CALCULUS_H_
 #define CALCULUS_H_
 
-#include "ExpressionTraits.h"
 #include "Expressions/ConstantExpression.h"
+#include "Expressions/Traits/ExpressionTraits.h"
 #include "Variable.h"
 
 namespace cvx{

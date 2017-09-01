@@ -7,9 +7,10 @@
 
 #ifndef FUNCTIONOBJECTS_H_
 #define FUNCTIONOBJECTS_H_
-#include "../ExpressionObjects.h"
+#include "../Expressions/ExpressionObjects.h"
 #include "../Variable.h"
 #include "../Calculus.h"
+#include "FunctionDeclarations.h"
 #include <cmath>
 
 namespace cvx{
@@ -32,31 +33,28 @@ namespace detail{
 	}
 
 } /* namespace detail */
-template <class Func, class Arg>
+template <class Func, class Arg, class ... Args>
 class Function:
 		public detail::FunctionBase
 {
 public:
 	using derived_type = Func;
-	Function(const Arg & arg):
-		arg_{arg}
+	using args_t = std::tuple<Arg, Args...>;
+	Function(const Arg & arg, const Args & ... args):
+		args_{arg, args...}
 	{
 
 	}
-	Function(Arg && arg):
-		arg_{std::move(arg)}
-	{
 
-	}
 	decltype(auto) evaluate() const
 	{
 		return as_derived()();
 	}
 
 protected:
-	const Arg & arg() const
+	const args_t & args() const
 	{
-		return arg_;
+		return args_;
 	}
 private:
 	const derived_type & as_derived() const
@@ -67,7 +65,46 @@ private:
 	{
 		return *static_cast<derived_type*>(this);
 	}
-	const Arg arg_;
+	const args_t args_;
+};
+
+template <class Func, class Arg>
+class Function<Func, Arg>:
+		public detail::FunctionBase
+{
+public:
+	using derived_type = Func;
+	using args_t = std::tuple<Arg>;
+	Function(const Arg & arg):
+		args_{arg}
+	{
+
+	}
+
+	decltype(auto) evaluate() const
+	{
+		return as_derived()();
+	}
+
+protected:
+	decltype(auto) get_arg() const
+	{
+		return std::get<0>(args());
+	}
+	const args_t & args() const
+	{
+		return args_;
+	}
+private:
+	const derived_type & as_derived() const
+	{
+		return *static_cast<const derived_type*>(this);
+	}
+	derived_type & as_derived()
+	{
+		return *static_cast<derived_type*>(this);
+	}
+	const args_t args_;
 };
 
 template <class T>
@@ -82,19 +119,21 @@ public:
 	{
 
 	}
+
+
 	decltype(auto) operator()() const
 	{
-		return std::exp(evaluate_expression(base_type::arg()));
+		return std::exp(evaluate_expression(base_type::get_arg()));
 	}
 	template <class Name, class U>
 	decltype(auto) diff(const Variable<Name, U, 1, 1> & var)
 	{
-		return self_type(base_type::arg()) * derivative_of(base_type::arg(), var);
+		return self_type(base_type::get_arg()) * derivative_of(base_type::get_arg(), var);
 	}
 	template <class Name, class U>
 	decltype(auto) diff(const Variable<Name, U, 1, 1> & var) const
 	{
-		return self_type(base_type::arg()) * derivative_of(base_type::arg(), var);
+		return self_type(base_type::get_arg()) * derivative_of(base_type::get_arg(), var);
 	}
 };
 
@@ -110,19 +149,20 @@ public:
 	{
 
 	}
+
 	decltype(auto) operator()() const
 	{
-		return std::pow(evaluate_expression(base_type::arg()), power_);
+		return std::pow(evaluate_expression(base_type::get_arg()), power_);
 	}
 	template <class Name, class U>
 	decltype(auto) diff(const Variable<Name, U, 1, 1> & var)
 	{
-		return power_ * self_type(base_type::arg(), power_ - 1) * derivative_of(base_type::arg(), var);
+		return power_ * self_type(base_type::get_arg(), power_ - 1) * derivative_of(base_type::get_arg(), var);
 	}
 	template <class Name, class U>
 	decltype(auto) diff(const Variable<Name, U, 1, 1> & var) const
 	{
-		return power_ * self_type(base_type::arg(), power_ - 1) * derivative_of(base_type::arg(), var);
+		return power_ * self_type(base_type::get_arg(), power_ - 1) * derivative_of(base_type::get_arg(), var);
 	}
 private:
 	double power_;
@@ -141,19 +181,20 @@ public:
 	{
 
 	}
+
 	decltype(auto) operator()() const
 	{
-		return std::log(evaluate_expression(base_type::arg()));
+		return std::log(evaluate_expression(base_type::get_arg()));
 	}
 	template <class Name, class U>
 	decltype(auto) diff(const Variable<Name, U, 1, 1> & var)
 	{
-		return derivative_of(base_type::arg(), var) / base_type::arg();
+		return derivative_of(base_type::get_arg(), var) / base_type::get_arg();
 	}
 	template <class Name, class U>
 	decltype(auto) diff(const Variable<Name, U, 1, 1> & var) const
 	{
-		return derivative_of(base_type::arg(), var) / base_type::arg();
+		return derivative_of(base_type::get_arg(), var) / base_type::get_arg();
 	}
 };
 
