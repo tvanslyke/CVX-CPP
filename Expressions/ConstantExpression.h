@@ -8,13 +8,14 @@
 #ifndef EXPRESSIONS_CONSTANTEXPRESSION_H_
 #define EXPRESSIONS_CONSTANTEXPRESSION_H_
 
-#include "ExpressionTraits.h"
+#include "../ExpressionTraits.h"
 #include <utility>
 namespace cvx{
 
 template <class T>
 class ConstantExpression: public FunctionExpression<ConstantExpression<T>>
 {
+public:
 	template <class ... Args>
 	ConstantExpression(Args && ... args):
 		value_(std::forward<Args>(args) ... )
@@ -25,6 +26,12 @@ class ConstantExpression: public FunctionExpression<ConstantExpression<T>>
 	{
 		return value_;
 	}
+	template <class ... Args>
+	auto diff(Args && ... args) const
+	{
+		return ConstantExpression<T>(0);
+	}
+private:
 	const T value_;
 };
 

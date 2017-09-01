@@ -10,7 +10,8 @@
 
 #include "../ExpressionTraits.h"
 namespace cvx{
-
+template <class T, class Name, class U, ptrdiff_t M, ptrdiff_t N>
+decltype(auto) derivative_of(const T & arg, const Variable<Name, U, M, N> & var);
 template <class Left, class Right>
 class DivExpression: public FunctionExpression<DivExpression<Left, Right>>
 {
@@ -37,9 +38,15 @@ public:
 	{
 		return left_;
 	}
+	template <class Name, class T, ptrdiff_t M, ptrdiff_t N>
+	decltype(auto) diff(const Variable<Name, T, M, N> & var) const
+	{
+		return (derivative_of(left_, var) * right_ - derivative_of(right_, var) * left_) / (right_ * right_);
+	}
+
 private:
-	const left_type & left_;
-	const right_type & right_;
+	const left_type left_;
+	const right_type right_;
 };
 
 template <class Left, class Right>

@@ -15,22 +15,8 @@
 #include "Expressions/SubExpression.h"
 #include "Expressions/MulExpression.h"
 #include "Expressions/DivExpression.h"
+#include "Expressions/ConstantExpression.h"
 namespace cvx{
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 template <class Func>
 class FunctionExpression
@@ -42,14 +28,7 @@ public:
 	using base_type = FunctionExpression<Func>;
 	using derived_type = Func;
 	using expression_type = Func;
-	template <class T> using right_add_type = AddExpression<Func, T>;
-	template <class T> using left_add_type  = AddExpression<T, Func>;
-	template <class T> using right_sub_type = SubExpression<Func, T>;
-	template <class T> using left_sub_type  = SubExpression<T, Func>;
-	template <class T> using right_mul_type = MulExpression<Func, T>;
-	template <class T> using left_mul_type  = MulExpression<T, Func>;
-	template <class T> using right_div_type = DivExpression<Func, T>;
-	template <class T> using left_div_type  = DivExpression<T, Func>;
+
 
 	operator const expression_type&() const &
 	{
@@ -89,6 +68,16 @@ public:
 	{
 		return forward_self_as_derived().evaluate();
 	}
+	template <class Name, class T, ptrdiff_t M, ptrdiff_t N>
+	decltype(auto) differentiate(const Variable<Name, T, M, N> & var) const
+	{
+		return forward_self_as_derived().diff(var);
+	}
+	template <class Name, class T, ptrdiff_t M, ptrdiff_t N>
+	decltype(auto) differentiate(const Variable<Name, T, M, N> & var)
+	{
+		return forward_self_as_derived().diff(var);
+	}
 private:
 	decltype(auto) forward_self_as_derived() const &
 	{
@@ -103,28 +92,53 @@ template <class Func>
 using fexpr = FunctionExpression<Func>;
 
 
+template <class T>
+using function_expression_overload_t = std::enable_if_t<is_function_expression<T>(), const FunctionExpression<T> &>;
+template <class T>
+using non_function_expression_overload_t = std::enable_if_t<not is_function_expression<T>(), const T &>;
 
 
-template <class T, class Func>
+template <class T, class Func, class = std::enable_if_t<is_function_expression<T>()>>
 auto operator+(const FunctionExpression<T> & left, const FunctionExpression<Func> & right)
 {
 	return make_add_expression(forward_as_derived(left), forward_as_derived(right));
 }
-template <class T, class Func>
+template <class T, class Func, class = std::enable_if_t<not is_function_expression<T>()>>
+auto operator+(const T & left, const FunctionExpression<Func> & right)
+{
+	return make_add_expression(left, forward_as_derived(right));
+}
+template <class T, class Func, class = std::enable_if_t<is_function_expression<T>()>>
 auto operator-(const FunctionExpression<T> & left, const FunctionExpression<Func> & right)
 {
 	return make_sub_expression(forward_as_derived(left), forward_as_derived(right));
 }
-template <class T, class Func>
+template <class T, class Func, class = std::enable_if_t<not is_function_expression<T>()>>
+auto operator-(const T & left, const FunctionExpression<Func> & right)
+{
+	return make_sub_expression(left, forward_as_derived(right));
+}
+template <class T, class Func, class = std::enable_if_t<is_function_expression<T>()>>
 auto operator*(const FunctionExpression<T> & left, const FunctionExpression<Func> & right)
 {
 	return make_mul_expression(forward_as_derived(left), forward_as_derived(right));
 }
-template <class T, class Func>
+template <class T, class Func, class = std::enable_if_t<not is_function_expression<T>()>>
+auto operator*(const T & left, const FunctionExpression<Func> & right)
+{
+	return make_mul_expression(left, forward_as_derived(right));
+}
+template <class T, class Func, class = std::enable_if_t<is_function_expression<T>()>>
 auto operator/(const FunctionExpression<T> & left, const FunctionExpression<Func> & right)
 {
 	return make_div_expression(forward_as_derived(left), forward_as_derived(right));
 }
+template <class T, class Func, class = std::enable_if_t<not is_function_expression<T>()>>
+auto operator/(const T & left, const FunctionExpression<Func> & right)
+{
+	return make_div_expression(left, forward_as_derived(right));
+}
+
 
 } /* namespace cvx */
 

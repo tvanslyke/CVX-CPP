@@ -9,8 +9,10 @@
 #define EXPRESSIONS_ADDEXPRESSION_H_
 
 #include "../ExpressionTraits.h"
-namespace cvx{
 
+namespace cvx{
+template <class T, class Name, class U, ptrdiff_t M, ptrdiff_t N>
+decltype(auto) derivative_of(const T & arg, const Variable<Name, U, M, N> & var);
 template <class Left, class Right>
 class AddExpression: public FunctionExpression<AddExpression<Left, Right>>
 {
@@ -37,9 +39,14 @@ public:
 	{
 		return left_;
 	}
+	template <class Name, class T, ptrdiff_t M, ptrdiff_t N>
+	decltype(auto) diff(const Variable<Name, T, M, N> & var) const
+	{
+		return (derivative_of(left_, var) + derivative_of(right_, var));
+	}
 private:
-	const left_type & left_;
-	const right_type & right_;
+	const left_type left_;
+	const right_type right_;
 };
 
 template <class Left, class Right>
