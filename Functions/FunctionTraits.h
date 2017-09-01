@@ -12,6 +12,8 @@
 
 namespace cvx{
 
+
+
 	namespace detail
 	{
 		template <curvature_t FuncCurv, curvature_t ArgCurv, curvature_t ... ArgCurvs>
